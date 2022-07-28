@@ -4,14 +4,24 @@ jobs:
   Explore-GitHub-Actions:
     runs-on: ubuntu-latest
     steps:
-      - run: echo "🎉 The job was automatically triggered by a ${{ github.event_name }} event."
-      - run: echo "🐧 This job is now running on a ${{ runner.os }} server hosted by GitHub!"
-      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
-      - name: Check out repository code
-        uses: actions/checkout@v3
-      - run: echo "💡 The ${{ github.repository }} repository has been cloned to the runner."
-      - run: echo "🖥️ The workflow is now ready to test your code on the runner."
-      - name: List files in the repository
-        run: |
-          ls ${{ github.workspace }}
-      - run: echo "🍏 This job's status is ${{ job.status }}."
+    # Make sure you put workflow kit action on top of all the steps 
+    - name: Collect Workflow Telemetry
+      uses: runforesight/foresight-workflow-kit-action@v1
+      with:
+        api_key: ${{ secrets.THUNDRA_APIKEY}}
+
+    - name: tests
+      uses: actions-rs/cargo@v1
+      run: cargo test
+
+
+    # Make sure you put test kit action after your test execution step 
+    - name: Analyze Test and/or Coverage Results
+      uses: thundra-io/foresight-test-kit-action@v1
+      with:
+        api_key: ${{ secrets.THUNDRA_APIKEY}}
+          #test_framework: <test_framework_optional>
+          #test_path: <test_results_path_optional>
+          #coverage_format: <coverage_format_optional>
+          #coverage_path: <coverage_results_path_optional>
+
